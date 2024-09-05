@@ -2,6 +2,7 @@ using InMemoryCRUDEmployeeOperationDhiki.Models;
 
 namespace InMemoryCRUDEmployeeOperationDhiki.Services;
 
+//Interface Operation
 public interface IEmployeeService
 {
     void AddEmployee(Employee employee);

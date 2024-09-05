@@ -1,42 +1,46 @@
 using InMemoryCRUDEmployeeOperationDhiki.Models;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace InMemoryCRUDEmployeeOperationDhiki.Services;
-
-public class EmployeeService : IEmployeeService
+namespace InMemoryCRUDEmployeeOperationDhiki.Services
 {
-    private List<Employee> _employees = new List<Employee>();
-
-    public void AddEmployee(Employee employee)
+    public class EmployeeService : IEmployeeService
     {
-        _employees.Add(employee);
-    }
+        private List<Employee> _employees = new List<Employee>();
 
-    public List<Employee> GetAllEmployees()
-    {
-        return _employees;
-    }
-
-    public Employee GetEmployeeById(string id)
-    {
-        return _employees.FirstOrDefault(e => e.EmployeeID == id);
-    }
-
-    public void UpdateEmployee(Employee employee)
-    {
-        var existingEmployee = GetEmployeeById(employee.EmployeeID);
-        if (existingEmployee != null)
+        
+        public void AddEmployee(Employee employee) //Untuk Menambahkan Employee
         {
-            existingEmployee.FullName = employee.FullName;
-            existingEmployee.BirthDate = employee.BirthDate;
+            _employees.Add(employee);
         }
-    }
 
-    public void DeleteEmployee(string id)
-    {
-        var employee = GetEmployeeById(id);
-        if (employee != null)
+        public List<Employee> GetAllEmployees() //Mendapatkan semua employee yang telah diimput
         {
-            _employees.Remove(employee);
+            return _employees;
+        }
+
+        public Employee GetEmployeeById(string id) //Mendapatkan employee berdasarkan id
+        {
+            return _employees.FirstOrDefault(e => e.EmployeeID == id);
+        }
+
+        public void UpdateEmployee(Employee employee) //Update data employe
+        {
+            var existingEmployee = GetEmployeeById(employee.EmployeeID);
+            if (existingEmployee != null)
+            {
+                existingEmployee.FullName = employee.FullName;
+                existingEmployee.BirthDate = employee.BirthDate;
+            }
+        }
+
+        public void DeleteEmployee(string id) //Delete Employee
+        {
+            var employee = GetEmployeeById(id);
+            if (employee != null)
+            {
+                _employees.Remove(employee);
+            }
         }
     }
 }

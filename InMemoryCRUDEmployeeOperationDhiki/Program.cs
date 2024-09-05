@@ -1,95 +1,192 @@
 ﻿using InMemoryCRUDEmployeeOperationDhiki.Models;
 using InMemoryCRUDEmployeeOperationDhiki.Services;
+using System.Globalization;
 
 class Program
 {
     static void Main(string[] args)
     {
+        // Inisialisasi employee service
         IEmployeeService employeeService = new EmployeeService();
         bool exit = false;
 
+        // Loop utama
         while (!exit)
         {
-            Console.WriteLine("1. Tambah Karyawan");
-            Console.WriteLine("2. Tampilkan Semua Karyawan");
-            Console.WriteLine("3. Cari Karyawan Berdasarkan ID");
-            Console.WriteLine("4. Update Karyawan");
-            Console.WriteLine("5. Hapus Karyawan");
-            Console.WriteLine("6. Keluar");
-            Console.Write("Pilih opsi: ");
-            var choice = Console.ReadLine();
-
-            switch (choice)
+            try
             {
-                case "1":
-                    Console.Write("Masukkan ID Karyawan: ");
-                    string id = Console.ReadLine();
-                    Console.Write("Masukkan Nama Lengkap: ");
-                    string name = Console.ReadLine();
-                    Console.Write("Masukkan Tanggal Lahir (yyyy-mm-dd): ");
-                    DateTime birthDate = DateTime.Parse(Console.ReadLine());
+                // Tampilkan menu utama
+                Console.WriteLine("1. Tambah Karyawan");
+                Console.WriteLine("2. Tampilkan Semua Karyawan");
+                Console.WriteLine("3. Cari Karyawan Berdasarkan ID");
+                Console.WriteLine("4. Update Karyawan");
+                Console.WriteLine("5. Hapus Karyawan");
+                Console.WriteLine("6. Keluar");
+                Console.Write("Pilih opsi: ");
+                var choice = Console.ReadLine();
 
-                    Employee newEmployee = new Employee { EmployeeID = id, FullName = name, BirthDate = birthDate };
-                    employeeService.AddEmployee(newEmployee);
-                    Console.WriteLine("Karyawan berhasil ditambahkan.");
-                    break;
+                switch (choice)
+                {
+                    case "1":
+                        // Tambah Karyawan
+                        while (true)
+                        {
+                            try
+                            {
+                                string id = null, name = null, birthDateString = null;
+                                DateTime birthDate = default;
 
-                case "2":
-                    var employees = employeeService.GetAllEmployees();
-                    foreach (var emp in employees)
-                    {
-                        Console.WriteLine($"ID: {emp.EmployeeID}, Nama: {emp.FullName}, Tanggal Lahir: {emp.BirthDate.ToShortDateString()}");
-                    }
-                    break;
+                                // Input dan validasi EmployeeID
+                                Console.Write("Masukkan ID Karyawan (hanya angka): ");
+                                id = Console.ReadLine();
+                                if (string.IsNullOrEmpty(id) || !id.All(char.IsDigit))
+                                {
+                                    throw new Exception("ID tidak boleh kosong dan harus berupa angka.");
+                                }
+                                if (employeeService.GetEmployeeById(id) != null)
+                                {
+                                    throw new Exception("ID Karyawan sudah ada.");
+                                }
 
-                case "3":
-                    Console.Write("Masukkan ID Karyawan: ");
-                    string searchId = Console.ReadLine();
-                    var employee = employeeService.GetEmployeeById(searchId);
-                    if (employee != null)
-                    {
-                        Console.WriteLine($"ID: {employee.EmployeeID}, Nama: {employee.FullName}, Tanggal Lahir: {employee.BirthDate.ToShortDateString()}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Karyawan tidak ditemukan.");
-                    }
-                    break;
+                                // Input dan validasi FullName
+                                Console.Write("Masukkan Nama Lengkap: ");
+                                name = Console.ReadLine();
+                                if (string.IsNullOrEmpty(name))
+                                {
+                                    throw new Exception("Nama tidak boleh kosong.");
+                                }
 
-                case "4":
-                    Console.Write("Masukkan ID Karyawan: ");
-                    string updateId = Console.ReadLine();
-                    var existingEmployee = employeeService.GetEmployeeById(updateId);
-                    if (existingEmployee != null)
-                    {
-                        Console.Write("Masukkan Nama Lengkap Baru: ");
-                        existingEmployee.FullName = Console.ReadLine();
-                        Console.Write("Masukkan Tanggal Lahir Baru (yyyy-mm-dd): ");
-                        existingEmployee.BirthDate = DateTime.Parse(Console.ReadLine());
+                                // Input dan validasi BirthDate
+                                Console.Write("Masukkan Tanggal Lahir (dd-MMM-yyyy): ");
+                                birthDateString = Console.ReadLine();
+                                if (string.IsNullOrEmpty(birthDateString))
+                                {
+                                    throw new Exception("Tanggal Lahir tidak boleh kosong.");
+                                }
+                                if (!DateTime.TryParseExact(birthDateString, "dd-MMM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out birthDate))
+                                {
+                                    throw new Exception("Format tanggal salah. Gunakan format dd-MMM-yyyy.");
+                                }
 
-                        employeeService.UpdateEmployee(existingEmployee);
-                        Console.WriteLine("Karyawan berhasil diupdate.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Karyawan tidak ditemukan.");
-                    }
-                    break;
+                                // Tambahkan karyawan baru
+                                Employee newEmployee = new Employee { EmployeeID = id, FullName = name, BirthDate = birthDate };
+                                employeeService.AddEmployee(newEmployee);
+                                Console.WriteLine("Karyawan berhasil ditambahkan.");
+                                break;
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Terjadi kesalahan: {ex.Message}");
+                            }
+                        }
+                        break;
 
-                case "5":
-                    Console.Write("Masukkan ID Karyawan: ");
-                    string deleteId = Console.ReadLine();
-                    employeeService.DeleteEmployee(deleteId);
-                    Console.WriteLine("Karyawan berhasil dihapus.");
-                    break;
+                    case "2":
+                        // Lihat Semua Karyawan
+                        var employees = employeeService.GetAllEmployees();
+                        if (employees.Count == 0)
+                        {
+                            Console.WriteLine("Tidak ada karyawan yang ditemukan.");
+                        }
+                        else
+                        {
+                            foreach (var emp in employees)
+                            {
+                                Console.WriteLine($"ID: {emp.EmployeeID}, Nama: {emp.FullName}, Tanggal Lahir: {emp.BirthDate.ToString("dd-MMM-yyyy")}");
+                            }
+                        }
+                        break;
 
-                case "6":
-                    exit = true;
-                    break;
+                    case "3":
+                        // Cari Karyawan berdasarkan ID
+                        Console.Write("Masukkan ID Karyawan: ");
+                        string searchId = Console.ReadLine();
+                        var employee = employeeService.GetEmployeeById(searchId);
+                        if (employee != null)
+                        {
+                            Console.WriteLine($"ID: {employee.EmployeeID}, Nama: {employee.FullName}, Tanggal Lahir: {employee.BirthDate.ToString("dd-MMM-yyyy")}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Karyawan tidak ditemukan.");
+                        }
+                        break;
 
-                default:
-                    Console.WriteLine("Pilihan tidak valid.");
-                    break;
+                    case "4":
+                        // Update Karyawan
+                        Console.Write("Masukkan ID Karyawan: ");
+                        string updateId = Console.ReadLine();
+                        var existingEmployee = employeeService.GetEmployeeById(updateId);
+                        if (existingEmployee != null)
+                        {
+                            while (true)
+                            {
+                                try
+                                {
+                                    string newName = null, newBirthDateString = null;
+                                    DateTime newBirthDate = default;
+
+                                    // Input dan validasi FullName baru
+                                    Console.Write("Masukkan Nama Lengkap Baru: ");
+                                    newName = Console.ReadLine();
+                                    if (string.IsNullOrEmpty(newName))
+                                    {
+                                        throw new Exception("Nama tidak boleh kosong.");
+                                    }
+
+                                    // Input dan validasi BirthDate baru
+                                    Console.Write("Masukkan Tanggal Lahir Baru (dd-MMM-yyyy): ");
+                                    newBirthDateString = Console.ReadLine();
+                                    if (string.IsNullOrEmpty(newBirthDateString))
+                                    {
+                                        throw new Exception("Tanggal Lahir tidak boleh kosong.");
+                                    }
+                                    if (!DateTime.TryParseExact(newBirthDateString, "dd-MMM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out newBirthDate))
+                                    {
+                                        throw new Exception("Format tanggal salah. Gunakan format dd-MMM-yyyy.");
+                                    }
+
+                                    // Perbarui detail karyawan
+                                    existingEmployee.FullName = newName;
+                                    existingEmployee.BirthDate = newBirthDate;
+                                    employeeService.UpdateEmployee(existingEmployee);
+                                    Console.WriteLine("Karyawan berhasil diupdate.");
+                                    break;
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"Terjadi kesalahan: {ex.Message}");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Karyawan tidak ditemukan.");
+                        }
+                        break;
+
+                    case "5":
+                        // Hapus Karyawan
+                        Console.Write("Masukkan ID Karyawan: ");
+                        string deleteId = Console.ReadLine();
+                        employeeService.DeleteEmployee(deleteId);
+                        Console.WriteLine("Karyawan berhasil dihapus.");
+                        break;
+
+                    case "6":
+                        // Keluar
+                        exit = true;
+                        break;
+
+                    default:
+                        Console.WriteLine("Pilihan tidak valid.");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Catch dan tampilkan kesalahan
+                Console.WriteLine($"Terjadi kesalahan: {ex.Message}");
             }
         }
     }
