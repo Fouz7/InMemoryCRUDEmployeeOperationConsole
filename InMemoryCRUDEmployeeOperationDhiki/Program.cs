@@ -8,6 +8,16 @@ class Program
     {
         // Inisialisasi employee service
         IEmployeeService employeeService = new EmployeeService();
+        
+        // Hardcode data karyawan
+        var emp1 = new Employee { EmployeeID = "1001", FullName = "Rohmat", BirthDate = DateTime.ParseExact("01-Jan-1990", "dd-MMM-yyyy", CultureInfo.InvariantCulture) };
+        var emp2 = new Employee { EmployeeID = "1002", FullName = "Anugrah", BirthDate = DateTime.ParseExact("15-Feb-1985", "dd-MMM-yyyy", CultureInfo.InvariantCulture) };
+        var emp3 = new Employee { EmployeeID = "1003", FullName = "Faisal", BirthDate = DateTime.ParseExact("23-Mar-1992", "dd-MMM-yyyy", CultureInfo.InvariantCulture) };
+        
+        employeeService.AddEmployee(emp1);
+        employeeService.AddEmployee(emp2);
+        employeeService.AddEmployee(emp3);
+        
         bool exit = false;
 
         // Loop utama
